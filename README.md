@@ -55,25 +55,28 @@ excluded), are in `results/ablation_report.md`.
 
 ## Repository structure
 
-'''
-scripts/
-dataset.py Paired dataset loader, reproducible train/val split
-dataset_audit.py Verifies pairing/shapes/dtypes across the dataset
-model.py IRISBaseline and IRISStronger architectures
-losses.py Charbonnier, SSIM, Sobel edge loss, combined loss
-train.py Experiment 1: baseline training
-train_exp2.py Experiment 2: baseline + structural/edge loss
-train_exp3.py Experiment 3: stronger backbone + combined loss (final model)
-evaluate.py Standalone inference: input dir -> output dir
-visualize_pairs.py Visualizes raw NoisyLR/GT pairs
-visualize_predictions.py Visualizes model predictions vs GT
-inspect_outliers.py Diagnoses anomalous-score samples
-compute_clean_metrics.py Recomputes audited per-image val metrics
-generate_ablation_report.py Builds ablation table + plots
+## Repository structure
 
-checkpoints_exp3/best.pt Final model weights (used by default in evaluate.py)
-results/ablation_report.md Full ablation methodology, narrative, and results
-results/ablation_plots.png PSNR/SSIM training curves, all three experiments '''
+```
+scripts/
+    dataset.py                  Paired dataset loader, reproducible train/val split
+    dataset_audit.py            Verifies pairing/shapes/dtypes across the dataset
+    model.py                    IRISBaseline and IRISStronger architectures
+    losses.py                   Charbonnier, SSIM, Sobel edge loss, combined loss
+    train.py                    Experiment 1: baseline training
+    train_exp2.py               Experiment 2: baseline + structural/edge loss
+    train_exp3.py               Experiment 3: stronger backbone + combined loss (final model)
+    evaluate.py                 Standalone inference: input dir -> output dir
+    visualize_pairs.py          Visualizes raw NoisyLR/GT pairs
+    visualize_predictions.py    Visualizes model predictions vs GT
+    inspect_outliers.py         Diagnoses anomalous-score samples
+    compute_clean_metrics.py    Recomputes audited per-image val metrics
+    generate_ablation_report.py Builds ablation table + plots
+
+checkpoints_exp3/best.pt        Final model weights (used by default in evaluate.py)
+results/ablation_report.md      Full ablation methodology, narrative, and results
+results/ablation_plots.png      PSNR/SSIM training curves, all three experiments
+```
 
 `checkpoints/` and `checkpoints_exp2/` (Experiments 1 and 2) are kept for
 reference/reproducibility; their training logs are in `log.csv` in each
