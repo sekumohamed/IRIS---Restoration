@@ -18,6 +18,7 @@ import torch
 
 from dataset import make_train_val_split
 from model import IRISBaseline, IRISStronger
+from model_conditioned import IRISConditioned
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--val_fraction", type=float, default=0.1)
     parser.add_argument("--out_dir", type=str, default="results/predictions")
-    parser.add_argument("--model", type=str, default="baseline", choices=["baseline", "stronger"])
+    parser.add_argument("--model", type=str, default="baseline", choices=["baseline", "stronger", "conditioned"])
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,6 +39,8 @@ def main():
     checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=False)
     if args.model == "stronger":
         model = IRISStronger(channels=112, num_res_blocks=16).to(device)
+    elif args.model == "conditioned":
+        model = IRISConditioned(channels=112, num_res_blocks=16, embed_dim=32).to(device)
     else:
         model = IRISBaseline(channels=64, num_res_blocks=8).to(device)
     model.load_state_dict(checkpoint["model_state"])

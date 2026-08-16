@@ -9,3 +9,5 @@ venv/
 __MACOSX/
 *.onnx
 outputs/*
+results/eval_test/
+results/eval_exp5_test/

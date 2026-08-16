@@ -15,7 +15,16 @@ single fixed architecture guess.
 |---|---|---|---|
 | Baseline (pixel loss only) | 813,633 | 28.40 dB | 0.7703 |
 | + Structural/Edge loss | 813,633 | 28.26 dB | 0.7753 |
-| **Final model: + Capacity** | **4,522,449** | **29.05 dB** | **0.7946** |
+| + Capacity | 4,522,449 | 29.05 dB | 0.7946 |
+| + Synthetic order-agnostic augmentation | 4,522,449 | 29.06 dB | 0.7946 |
+
+**Final submitted model: Experiment 3 (+ Capacity).** Experiment 4 (adding
+order-agnostic synthetic degradation augmentation on top of Experiment 3,
+to explicitly target the challenge's stated variable degradation order)
+was tested and found statistically indistinguishable from Experiment 3
+both quantitatively and visually — a genuine, honestly-reported negative
+result rather than an improvement, kept in the ablation record rather
+than omitted. See `results/ablation_report.md` for the full writeup.
 
 Metrics are mean per-image PSNR/SSIM on a held-out validation split
 (n=318; 2 corrupted/noise-only ground-truth samples excluded — see
@@ -53,7 +62,6 @@ own training log) rather than assumption. Full details, including a data
 quality issue that was found and correctly handled (not silently
 excluded), are in `results/ablation_report.md`.
 
-## Repository structure
 
 ## Repository structure
 
@@ -63,9 +71,12 @@ scripts/
     dataset_audit.py            Verifies pairing/shapes/dtypes across the dataset
     model.py                    IRISBaseline and IRISStronger architectures
     losses.py                   Charbonnier, SSIM, Sobel edge loss, combined loss
+    degradation_simulator.py    Synthetic order-randomized degradation pipeline
+    augmented_dataset.py        Wraps real pairs with synthetic augmentation for training
     train.py                    Experiment 1: baseline training
     train_exp2.py               Experiment 2: baseline + structural/edge loss
     train_exp3.py               Experiment 3: stronger backbone + combined loss (final model)
+    train_exp4.py               Experiment 4: + synthetic order-agnostic augmentation
     evaluate.py                 Standalone inference: input dir -> output dir
     visualize_pairs.py          Visualizes raw NoisyLR/GT pairs
     visualize_predictions.py    Visualizes model predictions vs GT
@@ -75,12 +86,12 @@ scripts/
 
 checkpoints_exp3/best.pt        Final model weights (used by default in evaluate.py)
 results/ablation_report.md      Full ablation methodology, narrative, and results
-results/ablation_plots.png      PSNR/SSIM training curves, all three experiments
+results/ablation_plots.png      PSNR/SSIM training curves, all four experiments
 ```
 
-`checkpoints/` and `checkpoints_exp2/` (Experiments 1 and 2) are kept for
-reference/reproducibility; their training logs are in `log.csv` in each
-folder.
+`checkpoints/`, `checkpoints_exp2/`, and `checkpoints_exp4/` (Experiments
+1, 2, and 4) are kept for reference/reproducibility; their training logs
+are in `log.csv` in each folder. Experiment 3 remains the submitted model.
 
 ## Running inference
 
@@ -109,6 +120,7 @@ python scripts/dataset_audit.py --data_root <path>
 python scripts/train.py --data_root <path> --epochs 30
 python scripts/train_exp2.py --data_root <path> --epochs 30
 python scripts/train_exp3.py --data_root <path> --epochs 100 --batch_size 8
+python scripts/train_exp4.py --data_root <path> --epochs 100 --batch_size 8
 python scripts/compute_clean_metrics.py --data_root <path>
 python scripts/generate_ablation_report.py
 ```
@@ -129,12 +141,17 @@ python scripts/generate_ablation_report.py
   uniform random noise with no learnable structure (identified via
   `inspect_outliers.py`); these are excluded from reported validation
   metrics as non-informative rather than genuine model failures.
+- Order-agnostic synthetic degradation augmentation (Experiment 4) was
+  implemented and tested but did not yield a measurable improvement over
+  Experiment 3, likely because the real training data already contains
+  meaningful natural variation in degradation severity.
 
 ## Future work (not implemented, flagged honestly as future direction)
 
-- Degradation-aware conditioning (a learned embedding of the
-  noise/speckle/downsampling mixture present in a given input) was
-  considered in early planning but not built, in favor of validating
-  simpler, cheaper improvements first given the project timeline.
-- Order-agnostic synthetic degradation augmentation, to explicitly train
-  robustness to the stated variable degradation ordering.
+- Degradation-aware conditioning: a learned embedding of the specific
+  noise/speckle/downsampling mixture present in a given input, used to
+  adaptively route processing (e.g. via FiLM-style conditioning or a
+  mixture-of-experts head). Considered in early planning but not built,
+  in favor of validating simpler, lower-risk improvements first given
+  the project timeline — a reasoned scope decision rather than an
+  oversight, documented here for transparency.

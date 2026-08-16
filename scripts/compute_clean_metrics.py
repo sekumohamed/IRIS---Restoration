@@ -29,6 +29,7 @@ from torch.utils.data import DataLoader
 
 from dataset import make_train_val_split
 from model import IRISBaseline, IRISStronger
+from model_conditioned import IRISConditioned
 
 
 KNOWN_CORRUPTED_IDS = {"002637", "002973"}  # confirmed pure-noise GT, no learnable structure
@@ -117,6 +118,8 @@ def main():
         ("Experiment 1 (baseline)", "checkpoints/best.pt", "baseline"),
         ("Experiment 2 (+ struct/edge loss)", "checkpoints_exp2/best.pt", "baseline"),
         ("Experiment 3 (+ capacity)", "checkpoints_exp3/best.pt", "stronger"),
+        ("Experiment 4 (+ synthetic augmentation)", "checkpoints_exp4/best.pt", "stronger"),
+        ("Experiment 5 (+ degradation conditioning)", "checkpoints_exp5/best.pt", "conditioned"),
     ]
 
     results = []
@@ -130,6 +133,8 @@ def main():
 
         if model_type == "stronger":
             model = IRISStronger(channels=112, num_res_blocks=16).to(device)
+        elif model_type == "conditioned":
+            model = IRISConditioned(channels=112, num_res_blocks=16, embed_dim=32).to(device)
         else:
             model = IRISBaseline(channels=64, num_res_blocks=8).to(device)
         model.load_state_dict(checkpoint["model_state"])

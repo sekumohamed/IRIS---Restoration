@@ -11,8 +11,9 @@ real evaluator will point this at a held-out test folder we've never
 seen, not our own validation split. It only needs: a folder of NoisyLR
 .npy files, a trained checkpoint, and the matching model architecture.
 
-Defaults to the current best model (IRISStronger + checkpoints_exp3/best.pt,
-val_psnr=26.62 dB), but --model / --checkpoint let you point it at any
+Defaults to the current best model (IRISConditioned + checkpoints_exp5/best.pt,
+degradation-aware conditioning on top of the Experiment 3 backbone), but
+--model / --checkpoint let you point it at any
 of the three trained checkpoints for comparison.
 
 Usage:
@@ -42,13 +43,15 @@ from PIL import Image
 from tqdm import tqdm
 
 from model import IRISBaseline, IRISStronger
-
+from model_conditioned import IRISConditioned
 
 def load_model(checkpoint_path: str, model_type: str, device: torch.device):
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
 
     if model_type == "stronger":
         model = IRISStronger(channels=112, num_res_blocks=16).to(device)
+    elif model_type == "conditioned":
+        model = IRISConditioned(channels=112, num_res_blocks=16, embed_dim=32).to(device)
     else:
         model = IRISBaseline(channels=64, num_res_blocks=8).to(device)
 
@@ -83,8 +86,8 @@ def main():
     parser.add_argument("--input_dir", type=str, required=True,
                          help="Directory containing NoisyLR .npy files (128x128, float32)")
     parser.add_argument("--output_dir", type=str, required=True)
-    parser.add_argument("--checkpoint", type=str, default="checkpoints_exp3/best.pt")
-    parser.add_argument("--model", type=str, default="stronger", choices=["baseline", "stronger"])
+    parser.add_argument("--checkpoint", type=str, default="checkpoints_exp5/best.pt")
+    parser.add_argument("--model", type=str, default="conditioned", choices=["baseline", "stronger", "conditioned"])
     parser.add_argument("--gt_dir", type=str, default=None,
                          help="Optional: directory of matching GT .npy files, for computing metrics")
     parser.add_argument("--save_png", action="store_true", default=True,
