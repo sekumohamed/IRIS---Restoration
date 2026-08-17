@@ -1,11 +1,11 @@
-# IRIS — Degradation-Aware Semiconductor Image Restoration
+# IRIS - Degradation-Aware Semiconductor Image Restoration
 
-**SEMICON India Hackathon 2026 — KLA Challenge**
+**SEMICON India Hackathon 2026 - KLA Challenge**
 
 Restores 128×128 noisy, low-resolution inspection images to clean 256×256
-outputs. The final model uses a degradation-aware CNN — a lightweight
+outputs. The final model uses a degradation-aware CNN - a lightweight
 encoder reads each input's degradation characteristics and conditions
-the main restoration network's processing accordingly — developed
+the main restoration network's processing accordingly - developed
 through a fully evidence-driven, five-experiment ablation process rather
 than a single fixed architecture guess.
 
@@ -24,7 +24,7 @@ than a single fixed architecture guess.
 **Final submitted model: Experiment 5 (+ Degradation-aware conditioning).**
 A lightweight CNN encoder produces an embedding of each input's
 degradation characteristics, which FiLM-modulates the main backbone's
-residual blocks — letting the network adapt its processing per-image
+residual blocks - letting the network adapt its processing per-image
 rather than applying identical processing regardless of degradation
 type or severity. This directly targets the challenge's core stated
 difficulty (unknown, variable-order degradation) and produced a small
@@ -33,13 +33,13 @@ unchanged.
 
 Experiment 4 (order-agnostic synthetic degradation augmentation) was
 tested separately and found statistically indistinguishable from
-Experiment 3 both quantitatively and visually — a genuine,
+Experiment 3 both quantitatively and visually - a genuine,
 honestly-reported negative result kept in the ablation record rather
 than omitted. See `results/ablation_report.md` for the full writeup of
 all five experiments.
 
 Metrics are mean per-image PSNR/SSIM on a held-out validation split
-(n=318; 2 corrupted/noise-only ground-truth samples excluded — see
+(n=318; 2 corrupted/noise-only ground-truth samples excluded - see
 `results/ablation_report.md` for details).
 
 ## Why this approach
@@ -50,29 +50,29 @@ Rather than assuming a fixed degradation pipeline or immediately building
 a large, complex architecture, this project followed a staged, measured
 approach:
 
-1. **Dataset audit first** — verified pairing, shapes, dtypes, and value
+1. **Dataset audit first** - verified pairing, shapes, dtypes, and value
    ranges (NoisyLR is intentionally left unclipped, matching the
    organizers' note that out-of-[0,1] values are a feature of the data,
    not an error) before any modeling.
-2. **Simple baseline** — a compact residual CNN with PixelShuffle 2×
+2. **Simple baseline** - a compact residual CNN with PixelShuffle 2×
    upsampling, trained with a standard pixel loss (Charbonnier), to
    establish a real quantitative reference point.
-3. **Loss ablation** — added SSIM (structural) and Sobel gradient (edge)
+3. **Loss ablation** - added SSIM (structural) and Sobel gradient (edge)
    loss terms. Visual inspection confirmed this measurably improved fine
    texture preservation (bark, fibrous surfaces) at a small, expected
-   PSNR cost — the standard perception-distortion tradeoff.
-4. **Capacity ablation** — visual inspection showed dense, high-frequency
+   PSNR cost - the standard perception-distortion tradeoff.
+4. **Capacity ablation** - visual inspection showed dense, high-frequency
    content (e.g. crowded scenes) was still under-resolved after the loss
    change, suggesting a capacity bottleneck rather than a loss-design
    problem. Scaling the backbone (813K → 4.5M parameters) confirmed this:
    it recovered PSNR *and* extended the SSIM gain, beating both prior
    experiments on both metrics.
-5. **Augmentation test** — built a synthetic degradation simulator
+5. **Augmentation test** - built a synthetic degradation simulator
    (speckle + Gaussian noise + downsampling, randomized order and
    parameters) to directly target the challenge's stated variable
    degradation order. Result: no measurable improvement over Experiment
-   3 — reported honestly as a negative finding.
-6. **Degradation-aware conditioning** — the final step: a small encoder
+   3 - reported honestly as a negative finding.
+6. **Degradation-aware conditioning** - the final step: a small encoder
    reads each input's degradation characteristics and FiLM-conditions
    the backbone's processing accordingly. This produced the best result
    on every metric with zero regression, and is the experiment most
@@ -155,7 +155,7 @@ python scripts/generate_ablation_report.py
   in a crowded scene) remains under-resolved relative to ground truth
   across all five experiments. This likely reflects a genuine
   information ceiling in the 128×128 input resolution rather than a
-  fixable model deficiency — flagged as a limitation rather than
+  fixable model deficiency - flagged as a limitation rather than
   pursued further within this scope.
 - The visible sample content in the provided training data is general
   macro/close-up photography rather than literal semiconductor die/wafer
@@ -175,7 +175,7 @@ python scripts/generate_ablation_report.py
 
 - Combining degradation-aware conditioning (Experiment 5) with synthetic
   order-agnostic augmentation (Experiment 4) was not tested within this
-  project's timeline — Experiment 4 showed no benefit on its own, so
+  project's timeline - Experiment 4 showed no benefit on its own, so
   this combination was deprioritized, but it remains a reasonable next
   step to test whether conditioning helps the model exploit augmented
   data better than the unconditioned backbone did.
